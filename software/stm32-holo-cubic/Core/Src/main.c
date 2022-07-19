@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "tos_k.h"
 #include "lcd_spi_drv.h"
 #include "lvgl.h"
 #include "examples/porting/lv_port_disp.h"
@@ -62,6 +63,23 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+#define LVGL_TASK_STACK_SIZE    2048
+#define LVGL_TASK_PRIO          4
+k_task_t lvgl_task;
+k_stack_t lvgl_task_stack[LVGL_TASK_STACK_SIZE];
+
+void lvgl_task_entry(void *arg)
+{
+    lv_init();
+    lv_port_disp_init();
+    lv_example_label_1();
+    
+    while (1) {
+        lv_task_handler();
+        tos_task_delay(5);
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -71,6 +89,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+    k_err_t err;
 
   /* USER CODE END 1 */
 
@@ -101,9 +120,12 @@ int main(void)
   // it will be init by lvgl.
   //lcd_init();
   
-  lv_init();
-  lv_port_disp_init();
-  lv_example_label_1();
+  tos_knl_init();
+  
+  err = tos_task_create(&lvgl_task, "lvgl_task", lvgl_task_entry, NULL, LVGL_TASK_PRIO, 
+                        lvgl_task_stack, LVGL_TASK_STACK_SIZE, 0);
+  
+  tos_knl_start();
 
   /* USER CODE END 2 */
 
@@ -114,8 +136,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      lv_task_handler();
-      HAL_Delay(5);
+      
   }
   /* USER CODE END 3 */
 }

@@ -21,8 +21,8 @@
 #endif /* USE_ASCII_FONT_LIB */
 
 static lcd_color_params_t s_lcd_color_params = {
-    .background_color = BLACK,
-    .foreground_color = WHITE
+    .background_color = WHITE,
+    .foreground_color = BLACK
 };
 
 static uint8_t write_buf[SPI_WRITE_BUFFER_SIZE];

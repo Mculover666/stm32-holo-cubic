@@ -22,6 +22,7 @@
 #include "stm32l5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "tos_k.h"
 #include "lvgl.h"
 /* USER CODE END Includes */
 
@@ -166,30 +167,23 @@ void DebugMon_Handler(void)
 }
 
 /**
-  * @brief This function handles Pendable request for system service.
-  */
-void PendSV_Handler(void)
-{
-  /* USER CODE BEGIN PendSV_IRQn 0 */
-
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
-}
-
-/**
   * @brief This function handles System tick timer.
   */
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+    if (tos_knl_is_running()) {
+        tos_knl_irq_enter();
+    }
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
     lv_tick_inc(1);
-
+    if (tos_knl_is_running()) {
+        tos_tick_handler();
+        tos_knl_irq_leave();
+    }
   /* USER CODE END SysTick_IRQn 1 */
 }
 
